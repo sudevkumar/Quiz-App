@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { data } from "../components/data";
-import { answers } from "../components/data";
 // import { startExamAction } from "../components/redux/questionReducer";
 import * as Action from "../components/redux/questionReducer";
+import { getServerData } from "../helper/helper";
 
 export const useFetchQuestion = () => {
   const [getData, setGetData] = useState({
@@ -12,7 +11,6 @@ export const useFetchQuestion = () => {
     error: null,
   });
 
-  console.log("dkkgkfkfkf", answers);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -20,14 +18,22 @@ export const useFetchQuestion = () => {
 
     (async () => {
       try {
-        let question = await data;
-        // console.log("object", question);
+        // let question = await data;
+        let [{ questions, answers }] = await getServerData(
+          `http://localhost:8080/api/questions`
+        )
+          .then((data) => data)
+          .catch((error) => console.log(error));
+        console.log("object", questions);
 
-        if (question.length > 0) {
+        if (questions.length > 0) {
           setGetData((prev) => ({ ...prev, loading: false }));
-          setGetData((prev) => ({ ...prev, apiData: { question, answers } }));
+          setGetData((prev) => ({
+            ...prev,
+            apiData: { question: questions, answers },
+          }));
 
-          dispatch(Action.startExamAction({ question, answers }));
+          dispatch(Action.startExamAction({ question: questions, answers }));
         } else {
           throw new Error("No Question Found!");
         }

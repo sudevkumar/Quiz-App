@@ -2,8 +2,9 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { attempt_Number, earn_points, flag_result } from "../helper/helper";
+import { usePublishResult } from "../hook/SetResult";
 import "../styles/result.css";
-import { answers } from "./data";
+
 import { resetAllAction } from "./redux/questionReducer";
 import { resetResultAction } from "./redux/resultReducer";
 import ResultTable from "./ResultTable";
@@ -11,24 +12,29 @@ import ResultTable from "./ResultTable";
 function Result() {
   const dispatch = useDispatch();
   const {
-    question: { queue, answer },
+    question: { queue, answers },
     result: { userId, result },
   } = useSelector((state) => state);
 
+  console.log("answer", answers);
+
   const handleRestart = () => {
-    dispatch(resetResultAction());
     dispatch(resetAllAction());
+    dispatch(resetResultAction());
   };
 
   const totalPoints = queue.length * 10;
   const attempts = attempt_Number(result);
-  const earnPoints = earn_points(result, answers);
+  const earnPoints = earn_points(result, answers, 10);
   const flag = flag_result(totalPoints, earnPoints);
 
-  useEffect(() => {
-    console.log(flag);
+  usePublishResult({
+    result,
+    username: userId,
+    attempts,
+    points: earnPoints,
+    achived: flag ? "Passed" : "Failed",
   });
-
   return (
     <div className="container">
       <h2 className="text-light">Quiz Application</h2>
@@ -36,7 +42,7 @@ function Result() {
       <div className="result flex-center">
         <div className="flex">
           <span>Usename : </span>
-          <span className="bold">Sudev</span>
+          <span className="bold">{userId}</span>
         </div>
 
         <div className="flex">
@@ -51,7 +57,7 @@ function Result() {
 
         <div className="flex">
           <span>Total Attempts : </span>
-          <span className="bold">{attempts}</span>
+          <span className="bold">{attempts || 0}</span>
         </div>
 
         <div className="flex">

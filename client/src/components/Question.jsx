@@ -35,7 +35,7 @@ function Question({ onChecked }) {
     <div className="questions">
       <h2 className="text-light">{question?.question}</h2>
       <ul key={question?.id}>
-        {question?.optopns.map((ele, ind) => (
+        {question?.options.map((ele, ind) => (
           <li key={ind}>
             <input
               type="radio"
